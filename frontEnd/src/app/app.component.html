@@ -1,0 +1,229 @@
+<div class="app-container">
+  <!-- HEADER -->
+  <header class="app-header">
+    <div class="header-content">
+      <h1>🎓 Sistema de Gestión Estudiantil</h1>
+      <p>Gestión integral de estudiantes y sus mochilas</p>
+    </div>
+  </header>
+
+  <!-- MAIN CONTENT -->
+  <main class="main-content">
+    
+    <!-- SECCIÓN DE REGISTRO -->
+    <div class="registration-section">
+      
+      <!-- FORMULARIO MOCHILA -->
+      <div class="form-card">
+        <h3>🎒 Registrar Nueva Mochila</h3>
+        <div class="form-grid">
+          <input [(ngModel)]="newMochila.marca" placeholder="Marca (ej: Nike)" class="form-input">
+          <input [(ngModel)]="newMochila.color" placeholder="Color (ej: Azul)" class="form-input">
+          <input [(ngModel)]="newMochila.material" placeholder="Material (ej: Poliéster)" class="form-input">
+          <input [(ngModel)]="newMochila.capacidad" type="number" placeholder="Capacidad (L)" class="form-input">
+          <button (click)="createMochila()" class="btn btn-primary">➕ Crear Mochila</button>
+        </div>
+      </div>
+
+      <!-- FORMULARIO ESTUDIANTE -->
+      <div class="form-card">
+        <h3>👨‍🎓 Registrar Nuevo Estudiante</h3>
+        <div class="form-grid">
+          <input [(ngModel)]="newStudent.dni" placeholder="DNI" class="form-input">
+          <input [(ngModel)]="newStudent.name" placeholder="Nombre" class="form-input">
+          <input [(ngModel)]="newStudent.lastName" placeholder="Apellido" class="form-input">
+          <input [(ngModel)]="newStudent.address" placeholder="Dirección" class="form-input">
+          
+          <!-- SELECTOR DE MOCHILA -->
+          <select [(ngModel)]="newStudent.mochilaId" class="form-input">
+            <option [value]="undefined">Seleccionar Mochila (opcional)</option>
+            <option *ngFor="let mochila of mochilas" [value]="mochila.id">
+              {{mochila.marca}} - {{mochila.color}} ({{mochila.capacidad}}L)
+            </option>
+          </select>
+          
+          <button (click)="createStudent()" class="btn btn-success">🎓 Crear Estudiante</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- FORMULARIOS DE EDICIÓN -->
+    <div *ngIf="isEditingStudent || isEditingMochila" class="editing-section">
+      
+      <!-- EDITAR ESTUDIANTE -->
+      <div *ngIf="isEditingStudent && selectedStudent" class="form-card editing">
+        <h3>✏️ Editando Estudiante: {{selectedStudent.name}} {{selectedStudent.lastName}}</h3>
+        <div class="form-grid">
+          <input [(ngModel)]="selectedStudent.dni" placeholder="DNI" class="form-input">
+          <input [(ngModel)]="selectedStudent.name" placeholder="Nombre" class="form-input">
+          <input [(ngModel)]="selectedStudent.lastName" placeholder="Apellido" class="form-input">
+          <input [(ngModel)]="selectedStudent.address" placeholder="Dirección" class="form-input">
+          
+          <!-- SELECTOR DE MOCHILA PARA EDICIÓN -->
+          <select [(ngModel)]="selectedStudent.mochilaId" class="form-input">
+            <option [value]="undefined">Sin mochila</option>
+            <option *ngFor="let mochila of mochilas" [value]="mochila.id">
+              {{mochila.marca}} - {{mochila.color}} ({{mochila.capacidad}}L)
+            </option>
+          </select>
+          
+          <div class="edit-actions">
+            <button (click)="updateStudent()" class="btn btn-success">💾 Guardar Cambios</button>
+            <button (click)="cancelEdit()" class="btn btn-secondary">❌ Cancelar</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- EDITAR MOCHILA -->
+      <div *ngIf="isEditingMochila && selectedMochila" class="form-card editing">
+        <h3>✏️ Editando Mochila: {{selectedMochila.marca}}</h3>
+        <div class="form-grid">
+          <input [(ngModel)]="selectedMochila.marca" placeholder="Marca" class="form-input">
+          <input [(ngModel)]="selectedMochila.color" placeholder="Color" class="form-input">
+          <input [(ngModel)]="selectedMochila.material" placeholder="Material" class="form-input">
+          <input [(ngModel)]="selectedMochila.capacidad" type="number" placeholder="Capacidad (L)" class="form-input">
+          
+          <div class="edit-actions">
+            <button (click)="updateMochila()" class="btn btn-success">💾 Guardar Cambios</button>
+            <button (click)="cancelEdit()" class="btn btn-secondary">❌ Cancelar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECCIÓN DE VISUALIZACIÓN -->
+    <div class="data-section">
+      
+      <!-- CONTROLES -->
+      <div class="controls">
+        <button (click)="loadAllData()" class="btn btn-refresh">🔄 Actualizar Todo</button>
+        <div class="stats">
+          <span class="stat-badge">👨‍🎓 {{students.length}} Estudiantes</span>
+          <span class="stat-badge">🎒 {{mochilas.length}} Mochilas</span>
+          <span *ngIf="searchTerm || searchFilter !== 'all'" class="stat-badge">
+            🔍 {{filteredStudents.length}} Resultados
+          </span>
+        </div>
+      </div>
+
+      <!-- 🔍 SECCIÓN DE BÚSQUEDA -->
+      <div class="search-container">
+        <input 
+          type="text" 
+          [(ngModel)]="searchTerm" 
+          (input)="filterStudents()"
+          placeholder="🔍 Buscar estudiantes por nombre, apellido o DNI..."
+          class="search-input"
+        >
+        
+        <div class="search-filters">
+          <select 
+            [(ngModel)]="searchFilter" 
+            (change)="filterStudents()"
+            class="filter-select"
+          >
+            <option value="all">Todos los estudiantes</option>
+            <option value="withBackpack">Con mochila</option>
+            <option value="withoutBackpack">Sin mochila</option>
+          </select>
+          
+          <button 
+            (click)="clearSearch()" 
+            class="btn btn-secondary"
+            *ngIf="searchTerm || searchFilter !== 'all'"
+          >
+            🗑️ Limpiar
+          </button>
+        </div>
+      </div>
+
+      <!-- LISTA DE ESTUDIANTES -->
+      <div class="students-container">
+        <h3>📚 Lista de Estudiantes</h3>
+        
+        <div *ngIf="students.length === 0" class="empty-state">
+          <p>No hay estudiantes registrados</p>
+          <small>Usa el formulario arriba para agregar el primero</small>
+        </div>
+
+        <!-- ESTUDIANTES FILTRADOS -->
+        <div *ngFor="let student of filteredStudents" class="student-card">
+          <div class="student-header">
+            <span class="student-ru">RU: {{student.ru}}</span>
+            <div class="student-actions">
+              <span class="student-dni">DNI: {{student.dni}}</span>
+              <button (click)="editStudent(student)" class="btn btn-warning btn-sm">✏️ Editar</button>
+              <button (click)="deleteStudent(student.ru!)" class="btn btn-danger btn-sm">🗑️ Eliminar</button>
+              <button (click)="debugStudentMochila(student)" class="btn btn-sm btn-info">🐛 Debug</button>
+            </div>
+          </div>
+          
+          <div class="student-info">
+            <h4>{{student.name}} {{student.lastName}}</h4>
+            <p>📍 {{student.address || 'Sin dirección'}}</p>
+          </div>
+
+          <!-- RELACIÓN CON MOCHILA USANDO EL OBJETO QUE VIENE DEL BACKEND -->
+          <div class="mochila-info" *ngIf="student.mochila; else noMochila">
+            <div class="mochila-details">
+              <div class="mochila-icon">🎒</div>
+              <div class="mochila-data">
+                <strong>{{ student.mochila.marca }}</strong>
+                <span>{{ student.mochila.color }} • {{ student.mochila.material }}</span>
+                <small>Capacidad: {{ student.mochila.capacidad }}L</small>
+              </div>
+            </div>
+          </div>
+
+          <ng-template #noMochila>
+            <div class="no-mochila-message">
+              <span>❌ Sin mochila asignada</span>
+            </div>
+          </ng-template>
+        </div>
+
+        <!-- MENSAJE CUANDO NO HAY RESULTADOS DE BÚSQUEDA -->
+        <div *ngIf="filteredStudents.length === 0 && students.length > 0" class="empty-state">
+          <p>No se encontraron estudiantes con los criterios de búsqueda</p>
+          <button (click)="clearSearch()" class="btn btn-secondary">Mostrar todos</button>
+        </div>
+      </div>
+
+      <!-- LISTA DE MOCHILAS DISPONIBLES -->
+      <div class="mochilas-container">
+        <h3>🎒 Mochilas Registradas</h3>
+        
+        <div *ngIf="mochilas.length === 0" class="empty-state">
+          <p>No hay mochilas registradas</p>
+        </div>
+
+        <div *ngFor="let mochila of mochilas" class="mochila-card">
+          <div class="mochila-header">
+            <span class="mochila-id">ID: {{mochila.id}}</span>
+            <div class="mochila-actions">
+              <button (click)="editMochila(mochila)" class="btn btn-warning btn-sm">✏️ Editar</button>
+              <button (click)="deleteMochila(mochila.id!)" class="btn btn-danger btn-sm">🗑️ Eliminar</button>
+            </div>
+          </div>
+          
+          <div class="mochila-details-small">
+            <strong>{{mochila.marca || 'SIN MARCA'}}</strong>
+            <span class="mochila-color" [style.background]="getColorCode(mochila.color)">
+              {{mochila.color || 'SIN COLOR'}}
+            </span>
+            <span>{{mochila.material || 'SIN MATERIAL'}}</span>
+            <span class="mochila-capacity">{{mochila.capacidad || 0}}L</span>
+          </div>
+          
+          <!-- MOSTRAR ASIGNACIÓN -->
+          <div *ngIf="getStudentWithMochila(mochila.id)" class="mochila-assignment">
+            <small>📍 Asignada a: {{getStudentWithMochila(mochila.id)}}</small>
+          </div>
+          <div *ngIf="!getStudentWithMochila(mochila.id)" class="mochila-assignment available">
+            <small>✅ Disponible para asignar</small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
