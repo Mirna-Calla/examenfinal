@@ -1,5 +1,5 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, Inject, PLATFORM_ID } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { StudentService, Student, Mochila } from './services/student.service';
 
@@ -45,7 +45,10 @@ export class AppComponent implements OnInit {
   // Estados de carga
   isLoading: boolean = false;
 
-  constructor(private studentService: StudentService) {}
+  constructor(
+    private studentService: StudentService,
+    @Inject(PLATFORM_ID) private platformId: any
+  ) {}
 
   ngOnInit() {
     console.log('🚀 INICIANDO SISTEMA ESTUDIANTIL...');
@@ -108,7 +111,7 @@ export class AppComponent implements OnInit {
       error: (error: any) => {
         console.error('❌ ERROR CARGANDO ESTUDIANTES:', error);
         this.isLoading = false;
-        alert('Error de conexión con el servidor');
+        this.mostrarErrorSeguro('Error de conexión con el servidor');
       }
     });
   }
@@ -283,6 +286,18 @@ export class AppComponent implements OnInit {
     }
   }
 
+  /**
+   * MUESTRA ERRORES DE FORMA SEGURA (SIN ERRORES DE SSR)
+   */
+  private mostrarErrorSeguro(mensaje: string) {
+    console.error('ERROR:', mensaje);
+    
+    // Solo mostrar alert si estamos en el navegador
+    if (isPlatformBrowser(this.platformId)) {
+      alert(mensaje);
+    }
+  }
+
   // ========== MÉTODOS EXISTENTES (MANTENER) ==========
 
   createStudent() {
@@ -309,12 +324,12 @@ export class AppComponent implements OnInit {
         console.log('✅ ESTUDIANTE CREADO:', data);
         this.loadAllData();
         this.newStudent = { dni: '', name: '', lastName: '', address: '', mochilaId: undefined };
-        alert('🎓 Estudiante creado exitosamente!');
+        this.mostrarErrorSeguro('🎓 Estudiante creado exitosamente!');
       },
       error: (error: any) => {
         console.error('❌ ERROR CREANDO:', error);
         console.error('❌ DETALLES:', error.error);
-        alert('Error: ' + (error.error?.message || error.message));
+        this.mostrarErrorSeguro('Error: ' + (error.error?.message || error.message));
       }
     });
   }
@@ -327,11 +342,11 @@ export class AppComponent implements OnInit {
         console.log('Mochila creada:', data);
         this.loadAllData();
         this.newMochila = { marca: '', color: '', material: '', capacidad: 0 };
-        alert('🎒 Mochila creada exitosamente!');
+        this.mostrarErrorSeguro('🎒 Mochila creada exitosamente!');
       },
       error: (error: any) => {
         console.error('Error creando mochila:', error);
-        alert('Error creando mochila: ' + error.message);
+        this.mostrarErrorSeguro('Error creando mochila: ' + error.message);
       }
     });
   }
@@ -370,12 +385,12 @@ export class AppComponent implements OnInit {
         console.log('✅ ESTUDIANTE ACTUALIZADO:', data);
         this.loadAllData();
         this.cancelEdit();
-        alert('✅ Estudiante actualizado exitosamente!');
+        this.mostrarErrorSeguro('✅ Estudiante actualizado exitosamente!');
       },
       error: (error: any) => {
         console.error('❌ ERROR ACTUALIZANDO:', error);
         console.error('❌ DETALLES:', error.error);
-        alert('❌ Error actualizando: ' + (error.error?.message || error.message));
+        this.mostrarErrorSeguro('❌ Error actualizando: ' + (error.error?.message || error.message));
       }
     });
   }
@@ -394,11 +409,11 @@ export class AppComponent implements OnInit {
       next: (data: Mochila) => {
         this.loadAllData();
         this.cancelEdit();
-        alert('✅ Mochila actualizada exitosamente');
+        this.mostrarErrorSeguro('✅ Mochila actualizada exitosamente');
       },
       error: (error: any) => {
         console.error('Error actualizando mochila:', error);
-        alert('❌ Error actualizando mochila');
+        this.mostrarErrorSeguro('❌ Error actualizando mochila');
       }
     });
   }
@@ -416,11 +431,11 @@ export class AppComponent implements OnInit {
         next: () => {
           console.log('Estudiante eliminado:', ru);
           this.loadAllData();
-          alert('✅ Estudiante eliminado exitosamente');
+          this.mostrarErrorSeguro('✅ Estudiante eliminado exitosamente');
         },
         error: (error: any) => {
           console.error('Error eliminando estudiante:', error);
-          alert('❌ Error eliminando estudiante: ' + error.message);
+          this.mostrarErrorSeguro('❌ Error eliminando estudiante: ' + error.message);
         }
       });
     }
@@ -432,11 +447,11 @@ export class AppComponent implements OnInit {
         next: () => {
           console.log('Mochila eliminada:', id);
           this.loadAllData();
-          alert('✅ Mochila eliminada exitosamente');
+          this.mostrarErrorSeguro('✅ Mochila eliminada exitosamente');
         },
         error: (error: any) => {
           console.error('Error eliminando mochila:', error);
-          alert('❌ Error eliminando mochila: ' + error.message);
+          this.mostrarErrorSeguro('❌ Error eliminando mochila: ' + error.message);
         }
       });
     }
@@ -444,17 +459,17 @@ export class AppComponent implements OnInit {
 
   validateStudent(student: Student): boolean {
     if (!student.dni || student.dni.length < 3) {
-      alert('DNI debe tener al menos 3 caracteres');
+      this.mostrarErrorSeguro('DNI debe tener al menos 3 caracteres');
       return false;
     }
     
     if (!student.name || student.name.length < 2) {
-      alert('Nombre debe tener al menos 2 caracteres');
+      this.mostrarErrorSeguro('Nombre debe tener al menos 2 caracteres');
       return false;
     }
     
     if (!student.lastName || student.lastName.length < 2) {
-      alert('Apellido debe tener al menos 2 caracteres');
+      this.mostrarErrorSeguro('Apellido debe tener al menos 2 caracteres');
       return false;
     }
     
@@ -463,12 +478,12 @@ export class AppComponent implements OnInit {
 
   validateMochila(mochila: Mochila): boolean {
     if (!mochila.marca || mochila.marca.length < 2) {
-      alert('Marca debe tener al menos 2 caracteres');
+      this.mostrarErrorSeguro('Marca debe tener al menos 2 caracteres');
       return false;
     }
     
     if (mochila.capacidad <= 0) {
-      alert('Capacidad debe ser mayor a 0');
+      this.mostrarErrorSeguro('Capacidad debe ser mayor a 0');
       return false;
     }
     

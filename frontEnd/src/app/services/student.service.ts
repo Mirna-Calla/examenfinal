@@ -24,9 +24,11 @@ export interface Mochila {
   providedIn: 'root'
 })
 export class StudentService {
-  private apiUrl = "https://eun-stormlike-tamekia.ngrok-free.dev";
+  // CAMBIA ESTA URL - usa tu backend local en puerto 8090
+  private apiUrl = "http://localhost:8090";
   private headers = new HttpHeaders({
-    'ngrok-skip-browser-warning': 'true'
+    'Content-Type': 'application/json',
+    'Accept': 'application/json'
   });
 
   constructor(private http: HttpClient) { }
