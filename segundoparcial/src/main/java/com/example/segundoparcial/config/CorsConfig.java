@@ -15,10 +15,11 @@ public class CorsConfig {
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**") // Permite todas las rutas
                         .allowedOrigins(
-                                "https://mirna-calla.github.io",  // ✅ Frontend en GitHub Pages
-                                "http://localhost:4200"           // ✅ Angular local
+                                "https://lite-aud-recommended-large.trycloudflare.com",  // ✅ NUEVO: Frontend Cloudflared
+                                "https://mirna-calla.github.io",                         // ✅ Frontend en GitHub Pages
+                                "http://localhost:4200"                                  // ✅ Angular local
                         )
-                        .allowedMethods("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS") // Incluye PATCH
+                        .allowedMethods("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS")
                         .allowedHeaders("*")
                         .allowCredentials(true);
             }

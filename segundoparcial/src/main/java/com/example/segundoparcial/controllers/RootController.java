@@ -1,16 +1,18 @@
 package com.example.segundoparcial.controllers;
 
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api")
 public class RootController {
 
-    @GetMapping
+    @GetMapping("/")
+    public String home() {
+        return "Backend API funcionando correctamente ✔️ - Examen Final";
+    }
+
+    @GetMapping("/api")
     public String apiRoot() {
-        return "Backend funcionando correctamente ✔️";
+        return "API endpoints disponibles ✔️";
     }
 }
-
