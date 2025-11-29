@@ -13,12 +13,12 @@ public class CorsConfig {
         return new WebMvcConfigurer() {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
-                registry.addMapping("/**")
+                registry.addMapping("/**") // Permite todas las rutas
                         .allowedOrigins(
-                                "https://mirna-calla.github.io",  // ✅ Tu dominio de GitHub Pages
-                                "http://localhost:4200"           // ✅ Mantén Angular local
+                                "https://mirna-calla.github.io",  // ✅ Frontend en GitHub Pages
+                                "http://localhost:4200"           // ✅ Angular local
                         )
-                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                        .allowedMethods("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS") // Incluye PATCH
                         .allowedHeaders("*")
                         .allowCredentials(true);
             }
